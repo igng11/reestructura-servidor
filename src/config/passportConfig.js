@@ -1,7 +1,7 @@
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import { createHash, isValidPassword } from "../utils.js";
-import { userService } from "../dao/index.js";
+import { userDao } from "../dao/index.js";
 import githubStrategy from "passport-github2";
 import { config } from "./config.js";
 
@@ -18,7 +18,7 @@ export const initializePassport = ()=>{
             try {
                 const {first_name} = req.body;
                 //verificar si el usuario ya se registro
-                const user = await userService.getByEmail(username);
+                const user = await userDao.getByEmail(username);
                 if(user){
                     return done(null, false)
                 }
@@ -27,7 +27,7 @@ export const initializePassport = ()=>{
                     email: username,
                     password:createHash(password)
                 }
-                const userCreated = await userService.save(newUser);
+                const userCreated = await userDao.save(newUser);
                 return done(null,userCreated)//En este punto passport completa el proceso de manera satisfactoria
             } catch (error) {
                 return done(error)
@@ -42,7 +42,7 @@ export const initializePassport = ()=>{
         async(username, password, done)=>{
             try {
                 //verificar si el usuario ya se registro
-                const user = await userService.getByEmail(username);
+                const user = await userDao.getByEmail(username);
                 if(!user){
                     return done(null, false)
                 }
@@ -68,14 +68,14 @@ export const initializePassport = ()=>{
             console.log('GitHub strategy called, profile:', profile);
             try {
                 //verificar si ya el usuario esta registrado en nuestra plataforma
-                const user = await userService.getByEmail(profile.username);
+                const user = await userDao.getByEmail(profile.username);
                 if(!user){
                     const newUser = {
                         first_name: profile.username,
                         email: profile.username,
                         password: createHash(profile.id)
                     };
-                    const userCreated = await userService.save(newUser);
+                    const userCreated = await userDao.save(newUser);
                     return done(null,userCreated)//En este punto passport completa el proceso de manera
                 } else {
                     return done(null,user)
@@ -94,7 +94,7 @@ export const initializePassport = ()=>{
     });
 
     passport.deserializeUser(async(id,done)=>{
-        const user = await userService.getById(id);
+        const user = await userDao.getById(id);
         done(null,user) //req.user --->sesions req.sessions.user
     });
 }

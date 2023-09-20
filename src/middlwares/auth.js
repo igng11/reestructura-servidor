@@ -14,8 +14,8 @@ export const checkUserAuthenticated = (req,res,next)=>{
         console.log('User is authenticated, calling next()');
         next();
     } else {
-        console.log('User is not authenticated, redirecting to /sessions');
-        res.redirect("/sessions");
+        console.log('User is not authenticated, redirecting to /signup');
+        res.redirect("/signup");
     }
 };
 
